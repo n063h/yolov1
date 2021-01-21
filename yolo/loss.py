@@ -94,9 +94,9 @@ class Loss_yolov1(torch.nn.Module):
             #conf_loss
         conf_loss_obj=F.mse_loss(pred_respond_box[:,4],target_respond_box[:,4],size_average=False)
             # cls loss
-        cls_loss = F.mse_loss(pred_grid_with_obj[:, 10:30], target_grid_with_obj[:, 10:30],size_average=False)
-        # class_pred = pred_grid_with_obj[:, 10:30].softmax(dim=1)
-        # cls_loss = F.mse_loss(class_pred, target_grid_with_obj[:, 10:30], size_average=False)
+        # cls_loss = F.mse_loss(pred_grid_with_obj[:, 10:30], target_grid_with_obj[:, 10:30],size_average=False)
+        class_pred = pred_grid_with_obj[:, 10:30].softmax(dim=1)
+        cls_loss = F.mse_loss(class_pred, target_grid_with_obj[:, 10:30], size_average=False)
         # class_target = target_grid_with_obj[:, 10:30].argmax(axis=1)
         # CrossEntropyLoss = nn.CrossEntropyLoss()
         # cls_loss = CrossEntropyLoss(pred_grid_with_obj[:, 10:30], class_target)
