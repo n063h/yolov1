@@ -44,7 +44,7 @@ test_transformer = [
     transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
 ]
 iou_threshold=.5
-bbox_conf_threshold=.1
+bbox_conf_threshold=.05
 
 def get_img(img_path):
     # img = np.array(Image.open(img_path))
@@ -60,7 +60,11 @@ def get_img(img_path):
     return img[None,:,:,:]
 
 
-def nms(boxes):
+def nms(boxes): # x1,y1,x2,y2,conf,cls
+    # win=[]
+    # boxes=boxes.numpy()
+    # sorted(boxes,key=lambda x:x[0],reverse=True)
+
     return boxes
 
 
@@ -92,10 +96,9 @@ def get_box(pred):
             #grid[9] *= conf_cls
             conf_box.append(np.append(grid[5:10].numpy(),conf_cls_ind))
     conf_box=torch.Tensor(conf_box)
-    nms_box=nms(conf_box)
-    for i in range(len(nms_box)):
-        xyxy=xywh2xyxy(nms_box[i][:4])
-        nms_box[i][:4]=xyxy
+    for i in range(len(conf_box)):
+        conf_box[i][:4]=xywh2xyxy(conf_box[i][:4])
+    nms_box = nms(conf_box)
 
     return nms_box
 
@@ -139,12 +142,12 @@ def draw(box,img_path):
 
 
 if __name__ == '__main__':
-    load_path='./model/YOLOv1_ce_sigmoid_not_Fronzen_best.pth'
+    load_path='./model/YOLOv1_ce_sigmoid_not_Fronzen_best1.pth'
     model = vgg19_bn()
     model.cpu()
     model.load_state_dict(torch.load(load_path,map_location=torch.device('cpu')))
     model.eval()
-    arr=['./data/VOC2007/JPEGImages/002181.jpg','./data/VOC2007/JPEGImages/006673.jpg']
+    arr=['./data/VOC2007/JPEGImages/001738.jpg','./data/VOC2007/JPEGImages/004470.jpg']
     for i in arr:
         predict(model,i)
 

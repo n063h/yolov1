@@ -70,12 +70,12 @@ def t(load_path=None,fronzen=True,offset=0):
                     inputs, target = inputs.cuda(), target.cuda()
                 pred = model(inputs)
                 loss,loc_loss,conf_loss_obj,conf_loss_no_obj,cls_loss = loss_func(pred, target)
-                part_loss = torch.Tensor([loc_loss, conf_loss_obj, conf_loss_no_obj, cls_loss]) / test_loader.batch_size
+                part_loss = torch.Tensor([loc_loss, conf_loss_obj, conf_loss_no_obj, cls_loss])
                 if use_gpu:
                     part_loss = part_loss.cuda()
                 print(
-                    "Epoch %d/%d| Step %d/%d Loss: %.2f ,loc_loss : %.2f,conf_loss_obj: %.2f , conf_loss_no_obj: %.2f, cls_loss: %.2f" % (
-                    e + 1, epoch, i + 1, len(train_loader), loss, part_loss[0], part_loss[1], part_loss[2],
+                    "Loss: %.2f ,loc_loss : %.2f,conf_loss_obj: %.2f , conf_loss_no_obj: %.2f, cls_loss: %.2f" % (
+                    loss, part_loss[0], part_loss[1], part_loss[2],
                     part_loss[3]))
                 epoch_eval_loss = epoch_eval_loss + loss
             eval_mean_Loss=epoch_eval_loss/len(test_loader)
@@ -91,4 +91,4 @@ def t(load_path=None,fronzen=True,offset=0):
 
 if __name__ == '__main__':
     print('ceSigmoid fronzen=false,offset=100')
-    t(load_path='./model/YOLOv1_ce_sigmoid_not_Fronzen_best.pth',fronzen=False,offset=100)
+    t(load_path='./model/YOLOv1_ce_sigmoid_not_Fronzen_best1.pth',fronzen=False,offset=100)
