@@ -89,7 +89,10 @@ def t(load_path=None,fronzen=True,offset=0):
             loss.backward()
             optimizer.step()
             epoch_loss = epoch_loss + loss
-            epoch_part_loss=epoch_part_loss+torch.Tensor([loc_loss,conf_loss_obj,conf_loss_no_obj,cls_loss])
+            part_loss=torch.Tensor([loc_loss,conf_loss_obj,conf_loss_no_obj,cls_loss])
+            if use_gpu:
+                part_loss=part_loss.cuda()
+            epoch_part_loss=epoch_part_loss+part_loss
         print("Train Epoch %d/%d| TrainMeanLoss: %.2f" % (e + 1, epoch, epoch_loss/len(train_loader)))
 
         model.eval()
