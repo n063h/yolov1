@@ -127,5 +127,5 @@ def t(load_path=None,fronzen=True,offset=0):
 
 
 if __name__ == '__main__':
-    print('normalReLU sigmoid  fronzen=False,offset=0')
+    print('normalReLU vgg fronzen=False,offset=0')
     t(load_path='./model/YOLOv1_normal_relu_notFronzen_best.pth',fronzen=False,offset=0)

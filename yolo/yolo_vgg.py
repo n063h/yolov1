@@ -33,7 +33,7 @@ class YOLOv1_VGG(nn.Module):
             nn.LeakyReLU(0.1),
             nn.Dropout(),
             nn.Linear(4096, 1470),
-            nn.Sigmoid()
+            nn.ReLU()
         )
         self._initialize_weights()
 
