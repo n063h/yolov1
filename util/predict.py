@@ -1,0 +1,162 @@
+import torch
+from torch.autograd import Variable
+from util.calc_iou import *
+from yolo.network import YOLOv1
+import torchvision.transforms as transforms
+from yolo.yolo_resnet import YOLOv1_Resnet
+from yolo.yolo_vgg import vgg19
+import cv2
+from PIL import Image
+import numpy as np
+
+VOC_CLASSES = (  # always index 0
+    'aeroplane', 'bicycle', 'bird', 'boat',
+    'bottle', 'bus', 'car', 'cat', 'chair',
+    'cow', 'diningtable', 'dog', 'horse',
+    'motorbike', 'person', 'pottedplant',
+    'sheep', 'sofa', 'train', 'tvmonitor')
+
+Color = [[0, 0, 0],
+         [128, 0, 0],
+         [0, 128, 0],
+         [128, 128, 0],
+         [0, 0, 128],
+         [128, 0, 128],
+         [0, 128, 128],
+         [128, 128, 128],
+         [64, 0, 0],
+         [192, 0, 0],
+         [64, 128, 0],
+         [192, 128, 0],
+         [64, 0, 128],
+         [192, 0, 128],
+         [64, 128, 128],
+         [192, 128, 128],
+         [0, 64, 0],
+         [128, 64, 0],
+         [0, 192, 0],
+         [128, 192, 0],
+         [0, 64, 128]]
+
+test_transformer = [
+    transforms.ToPILImage(),
+    transforms.ToTensor(),
+    transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
+]
+iou_threshold=.5
+bbox_conf_threshold=.1
+
+def get_img(img_path):
+    # img = np.array(Image.open(img_path))
+    # img = img.transpose((1, 0, 2))
+    # image = np.resize(img, (448, 448, 3))
+    # for t in test_transformer:
+    #     image=t(image)
+    img = cv2.imread(img_path)
+    img=cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+    img = cv2.resize(img, (448, 448))
+    for t in test_transformer:
+        img = t(img)
+    return img[None,:,:,:]
+
+
+def nms(boxes):
+    return boxes
+
+
+def get_box(pred):
+    conf_mask=pred[:,:,:,4]>=bbox_conf_threshold
+    conf_mask= conf_mask.unsqueeze(-1).expand_as(pred)
+    conf_grid_a=pred[conf_mask].view(-1,30)
+    conf_mask = pred[:, :, :, 9] >= bbox_conf_threshold
+    conf_mask = conf_mask.unsqueeze(-1).expand_as(pred)
+    conf_grid_b = pred[conf_mask].view(-1, 30)
+    conf_grid=torch.cat([conf_grid_a,conf_grid_b])
+
+
+    # better_mask_a=conf_grid[:,4]>conf_grid[:,9]
+    # better_mask_b = conf_grid[:, 4] <= conf_grid[:, 9]
+    # better_mask_a = better_mask_a.unsqueeze(-1).expand_as(conf_grid)
+    # better_mask_b = better_mask_b.unsqueeze(-1).expand_as(conf_grid)
+    # better_grid_a=conf_grid[better_mask_a].view(-1,30)
+    conf_box=[]
+    for i in range(conf_grid.shape[0]):
+        grid=conf_grid[i]
+        conf_cls_ind=grid[10:30].argmax()
+        conf_cls=grid[10+conf_cls_ind]
+        if grid[4]>grid[9]:
+            #grid[4]*=conf_cls
+            conf_box.append(np.append(grid[:5].numpy(),conf_cls_ind))
+
+        else:
+            #grid[9] *= conf_cls
+            conf_box.append(np.append(grid[5:10].numpy(),conf_cls_ind))
+    conf_box=torch.Tensor(conf_box)
+    nms_box=nms(conf_box)
+    for i in range(len(nms_box)):
+        xyxy=xywh2xyxy(nms_box[i][:4])
+        nms_box[i][:4]=xyxy
+
+    return nms_box
+
+
+
+def predict(model,img_path):
+    input= get_img(img_path)
+    with torch.no_grad():
+        pred = model(input)  # 1x7x7x30
+        box = get_box(pred) # n*5
+
+    # x, y, w, h=xyxy2xywh(367,1,468,156,(w, h))
+    # box=torch.Tensor([x,y,w,h,0.9,8]).view(1,-1)
+    # xyxy = xywh2xyxy(box[0,:4])
+    # box[0,:4] = xyxy
+    draw(box,img_path)
+
+
+
+def draw(box,img_path):
+    image = cv2.imread(img_path)
+    h,w,_=image.shape
+    w_ratio, h_ratio = w / 448, h / 448
+
+    for i in range(box.shape[0]):
+        b=box[i]
+        if b[0]<1:b[:4]=xywh2xyxy(b[:4])
+
+    if (box.shape[0] > 0):
+        box[:, [0, 2]] *= w_ratio
+        box[:, [1, 3]] *= h_ratio
+    for x1, y1, x2,y2, conf,cls_ind in box:
+        cls_ind=int(cls_ind)
+        color = Color[cls_ind]
+        cv2.rectangle(image, (x1,y2), (x2,y1), color, 2)
+        label = VOC_CLASSES[cls_ind] + str(round(float(conf), 2))
+        cv2.putText(image, label, (x1,y1+5), cv2.FONT_HERSHEY_SIMPLEX, 0.4, (255, 255, 255), 1, 8)
+
+    cv2.imshow('image',image)
+    cv2.waitKey()
+
+
+if __name__ == '__main__':
+    # load_path='./model/YOLOv1_relu_notFronzen_best.pth'
+    # model = vgg19()
+    # model.cpu()
+    # # model.load_state_dict(torch.load(load_path,map_location=torch.device('cpu')))
+    # model.eval()
+    # arr=['./data/VOC2007/JPEGImages/002181.jpg']
+    # for i in arr:
+    #     predict(model,i)
+    pred=torch.Tensor([[ 0.4210,  0.5284,  0.2220,  0.4042,  1.0000, 14.0000,  0.5284,  0.2220,
+          0.4042,  1.0000,  0.0000,  0.0000,  0.0000,  0.0000,  0.0000,  0.0000,
+          0.0000,  0.0000,  0.0000,  0.0000,  0.0000,  0.0000,  0.0000,  0.0000,
+          1.0000,  0.0000,  0.0000,  0.0000,  0.0000,  0.0000],
+        [ 0.3930,  0.6407,  0.1740,  0.3114,  1.0000,  1.0000,  0.6407,  0.1740,
+          0.3114,  1.0000,  0.0000,  1.0000,  0.0000,  0.0000,  0.0000,  0.0000,
+          0.0000,  0.0000,  0.0000,  0.0000,  0.0000,  0.0000,  0.0000,  0.0000,
+          0.0000,  0.0000,  0.0000,  0.0000,  0.0000,  0.0000]])
+
+    draw(pred[:,:6],'./data/VOC2007/JPEGImages/004782.jpg')
+
+
+
