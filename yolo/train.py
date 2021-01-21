@@ -97,9 +97,9 @@ def t(load_path=None,fronzen=True,offset=0):
             loss.backward()
             optimizer.step()
 
-
+        epoch_loss = epoch_loss / len(test_loader)
         epoch_part_loss =epoch_part_loss / len(test_loader)
-        print("Train Epoch %d/%d| TrainMeanLoss: %.2f ,loc_loss : %.2f, conf_loss_obj: %.2f , conf_loss_no_obj: %.2f, cls_loss: %.2f " % (e + 1, epoch, epoch_loss/len(train_loader),epoch_part_loss[0],epoch_part_loss[1],epoch_part_loss[2],epoch_part_loss[3]))
+        print("Train Epoch %d/%d| TrainMeanLoss: %.2f ,loc_loss : %.2f, conf_loss_obj: %.2f , conf_loss_no_obj: %.2f, cls_loss: %.2f " % (e + 1, epoch, epoch_loss,epoch_part_loss[0],epoch_part_loss[1],epoch_part_loss[2],epoch_part_loss[3]))
 
         if epoch_loss < best_epoch_loss and e > 10:
             best_epoch_loss=epoch_loss
