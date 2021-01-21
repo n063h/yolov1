@@ -91,7 +91,7 @@ def t(load_path=None,fronzen=True,offset=0):
             epoch_part_loss = epoch_part_loss + part_loss
 
             if i%20==0:
-                print("Epoch %d/%d| Step %d/%d Loss: %.2f ,loc_loss : %.2f,conf_loss_obj: %.2f , conf_loss_no_obj: %.2f, cls_loss: %.2f" % (e + 1, epoch, i + 1, len(train_loader), loss,epoch_part_loss[0],epoch_part_loss[1],epoch_part_loss[2],epoch_part_loss[3]))
+                print("Epoch %d/%d| Step %d/%d Loss: %.2f ,loc_loss : %.2f,conf_loss_obj: %.2f , conf_loss_no_obj: %.2f, cls_loss: %.2f" % (e + 1, epoch, i + 1, len(train_loader), loss,part_loss[0],part_loss[1],part_loss[2],part_loss[3]))
             optimizer.zero_grad()
             loss.backward()
             optimizer.step()
