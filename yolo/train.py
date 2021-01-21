@@ -33,9 +33,9 @@ def t(load_path=None,fronzen=True,offset=0):
 
 
     train_dataset = data.voc_dataset('train',transform=train_transformer)
-    train_loader = data.DataLoader(train_dataset, batch_size=8, shuffle=False,num_workers=8)
+    train_loader = data.DataLoader(train_dataset, batch_size=64, shuffle=False,num_workers=8)
     test_dataset = data.voc_dataset('test', transform=test_transformer)
-    test_loader = data.DataLoader(test_dataset,batch_size=8,shuffle=False,num_workers=8)
+    test_loader = data.DataLoader(test_dataset,batch_size=64,shuffle=False,num_workers=8)
 
 
     # model = YOLOv1_Resnet()
