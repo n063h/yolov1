@@ -55,7 +55,7 @@ def t(load_path=None,fronzen=True,offset=0):
     optimizer = torch.optim.SGD(model.parameters(),lr=lr,momentum=0.9,weight_decay=0.0005)
     torch.autograd.set_detect_anomaly(True)
 
-    best_eval_loss=torch.Tensor([5]).cuda() if use_gpu else torch.Tensor([5])
+    best_eval_loss=torch.Tensor([8]).cuda() if use_gpu else torch.Tensor([8])
     for e in range(epoch):
         epoch_loss =torch.Tensor([0]).cuda() if use_gpu else torch.Tensor([0])
         epoch_eval_loss = torch.Tensor([0]).cuda() if use_gpu else torch.Tensor([0])
@@ -83,31 +83,35 @@ def t(load_path=None,fronzen=True,offset=0):
                 inputs, target = inputs.cuda(), target.cuda()
             pred = model(inputs)
             loss,loc_loss,conf_loss_obj,conf_loss_no_obj,cls_loss = loss_func(pred, target)
+
+            epoch_loss = epoch_loss + loss
+            part_loss = torch.Tensor([loc_loss, conf_loss_obj, conf_loss_no_obj, cls_loss])/test_loader.batch_size
+            if use_gpu:
+                part_loss = part_loss.cuda()
+            epoch_part_loss = epoch_part_loss + part_loss
+
             if i%20==0:
-                print("Epoch %d/%d| Step %d/%d Loss: %.2f,loc_loss : %.2f,conf_loss_obj: %.2f ,conf_loss_no_obj: %.2f,cls_loss: %.2f" % (e + 1, epoch, i + 1, len(train_loader), loss,loc_loss,conf_loss_obj,conf_loss_no_obj,cls_loss))
+                print("Epoch %d/%d| Step %d/%d Loss: %.2f ,loc_loss : %.2f,conf_loss_obj: %.2f , conf_loss_no_obj: %.2f, cls_loss: %.2f" % (e + 1, epoch, i + 1, len(train_loader), loss,part_loss[0],part_loss[1],part_loss[2],part_loss[3]))
             optimizer.zero_grad()
             loss.backward()
             optimizer.step()
-            epoch_loss = epoch_loss + loss
-            part_loss=torch.Tensor([loc_loss,conf_loss_obj,conf_loss_no_obj,cls_loss])
-            if use_gpu:
-                part_loss=part_loss.cuda()
-            epoch_part_loss=epoch_part_loss+part_loss
-        print("Train Epoch %d/%d| TrainMeanLoss: %.2f" % (e + 1, epoch, epoch_loss/len(train_loader)))
+
+
+        epoch_part_loss =epoch_part_loss / len(test_loader)
+        print("Train Epoch %d/%d| TrainMeanLoss: %.2f ,loc_loss : %.2f, conf_loss_obj: %.2f , conf_loss_no_obj: %.2f, cls_loss: %.2f " % (e + 1, epoch, epoch_loss/len(train_loader),epoch_part_loss[0],epoch_part_loss[1],epoch_part_loss[2],epoch_part_loss[3]))
 
         model.eval()
         with torch.no_grad():
-            for i, (inputs, target) in enumerate(test_loader):
+            for i, (inputs, target,_) in enumerate(test_loader):
                 inputs = Variable(inputs)
                 target = Variable(target)
                 if use_gpu:
                     inputs, target = inputs.cuda(), target.cuda()
                     pred = model(inputs)
-                    loss = loss_func(pred, target)
+                    loss,loc_loss,conf_loss_obj,conf_loss_no_obj,cls_loss = loss_func(pred, target)
                     epoch_eval_loss = epoch_eval_loss + loss
             eval_mean_Loss=epoch_eval_loss/len(test_loader)
-            epoch_part_loss=epoch_part_loss/len(test_loader)
-            print('Eval Epoch %d/%d| EvalMeanLoss : %.2f,loc_loss : %.2f,conf_loss_obj: %.2f ,conf_loss_no_obj: %.2f,cls_loss: %.2f ' % (e + 1, epoch, eval_mean_Loss,epoch_part_loss[0],epoch_part_loss[1],epoch_part_loss[2],epoch_part_loss[3]))
+            print('Eval Epoch %d/%d| EvalMeanLoss : %.2f' % (e + 1, epoch, eval_mean_Loss))
             if eval_mean_Loss<best_eval_loss and e>10:
                 best_eval_loss = eval_mean_Loss
                 torch.save(model.state_dict(), './model/YOLOv1_normal_relu_notFronzen_best.pth')
