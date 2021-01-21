@@ -33,9 +33,9 @@ def t(load_path=None,fronzen=True,offset=0):
 
 
     train_dataset = data.voc_dataset('train',transform=train_transformer)
-    train_loader = data.DataLoader(train_dataset, batch_size=64, shuffle=False,num_workers=8)
+    train_loader = data.DataLoader(train_dataset, batch_size=8, shuffle=False,num_workers=8)
     test_dataset = data.voc_dataset('test', transform=test_transformer)
-    test_loader = data.DataLoader(test_dataset,batch_size=64,shuffle=False,num_workers=8)
+    test_loader = data.DataLoader(test_dataset,batch_size=8,shuffle=False,num_workers=8)
 
 
     # model = YOLOv1_Resnet()
@@ -56,6 +56,7 @@ def t(load_path=None,fronzen=True,offset=0):
     torch.autograd.set_detect_anomaly(True)
 
     best_eval_loss=torch.Tensor([8]).cuda() if use_gpu else torch.Tensor([8])
+    best_epoch_loss = torch.Tensor([8]).cuda() if use_gpu else torch.Tensor([8])
     for e in range(epoch):
         epoch_loss =torch.Tensor([0]).cuda() if use_gpu else torch.Tensor([0])
         epoch_eval_loss = torch.Tensor([0]).cuda() if use_gpu else torch.Tensor([0])
@@ -97,6 +98,10 @@ def t(load_path=None,fronzen=True,offset=0):
 
         epoch_part_loss =epoch_part_loss / len(test_loader)
         print("Train Epoch %d/%d| TrainMeanLoss: %.2f ,loc_loss : %.2f, conf_loss_obj: %.2f , conf_loss_no_obj: %.2f, cls_loss: %.2f " % (e + 1, epoch, epoch_loss/len(train_loader),epoch_part_loss[0],epoch_part_loss[1],epoch_part_loss[2],epoch_part_loss[3]))
+        if epoch_loss < best_epoch_loss and e > 10:
+            best_epoch_loss=epoch_loss
+            torch.save(model.state_dict(), './model/YOLOv1_normal_relu_notFronzen_best_train.pth')
+            print('best train model Saved')
 
         model.eval()
         with torch.no_grad():
@@ -114,6 +119,8 @@ def t(load_path=None,fronzen=True,offset=0):
                 best_eval_loss = eval_mean_Loss
                 torch.save(model.state_dict(), './model/YOLOv1_normal_relu_notFronzen_best.pth')
                 print('best model Saved')
+
+
 
 
 
