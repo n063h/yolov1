@@ -55,7 +55,7 @@ def t(load_path=None,fronzen=True,offset=0):
     optimizer = torch.optim.SGD(model.parameters(),lr=lr,momentum=0.9,weight_decay=0.0005)
     torch.autograd.set_detect_anomaly(True)
 
-    best_eval_loss=torch.Tensor([5]).cuda() if use_gpu else torch.Tensor([5])
+    best_eval_loss=torch.Tensor([8]).cuda() if use_gpu else torch.Tensor([8])
     for e in range(epoch):
         epoch_loss =torch.Tensor([0]).cuda() if use_gpu else torch.Tensor([0])
         epoch_eval_loss = torch.Tensor([0]).cuda() if use_gpu else torch.Tensor([0])
