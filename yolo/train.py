@@ -97,7 +97,7 @@ def t(load_path=None,fronzen=True,offset=0):
 
         model.eval()
         with torch.no_grad():
-            for i, (inputs, target) in enumerate(test_loader):
+            for i, (inputs, target,_) in enumerate(test_loader):
                 inputs = Variable(inputs)
                 target = Variable(target)
                 if use_gpu:
