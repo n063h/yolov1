@@ -49,7 +49,7 @@ def t(load_path=None,fronzen=True,offset=0):
         except Exception:
             print('model not Found')
     if not fronzen:
-        for para in model.features.parameters():
+        for para in model.parameters():
             para.requires_grad = True
     loss_func = Loss_yolov1()
     optimizer = torch.optim.SGD(model.parameters(),lr=lr,momentum=0.9,weight_decay=0.0005)
