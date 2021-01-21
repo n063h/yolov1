@@ -15,7 +15,7 @@ model_urls = {
 
 class YOLOv1_Resnet(nn.Module):
 
-    def __init__(self,model_name="resnet18",pretrained=True,load_path=None):
+    def __init__(self,model_name="resnet34",pretrained=True):
         super(YOLOv1_Resnet, self).__init__()
         self.output_num=7*7*30
         if model_name=="resnet18":
@@ -24,21 +24,19 @@ class YOLOv1_Resnet(nn.Module):
             model = torchvision.models.resnet34(pretrained=pretrained)
         if model_name=="resnet101":
             model = torchvision.models.resnet101(pretrained=pretrained)
-        if load_path != None:
-            model.load_state_dict(torch.load(load_path,map_location=torch.device(device)))
         for param in model.parameters():
             param.requires_grad = False
         self.conv1,self.bn1,self.relu,self.maxpool,self.layer1,self.layer2,self.layer3,self.layer4,self.avgpool=model.conv1,model.bn1,model.relu,model.maxpool,model.layer1,model.layer2,model.layer3,model.layer4,model.avgpool
         input_num = model.fc.in_features
         #self.fc = nn.Linear(input_num*14*14, self.output_num)
         self.conn_layer1 = nn.Sequential(
-            nn.Linear(in_features=14 * 14 * 512, out_features=4096),
+            nn.Linear(in_features=14 * 14 * input_num, out_features=4096),
             nn.Dropout(),
             nn.LeakyReLU(0.1)
         )
         self.conn_layer2 = nn.Sequential(
             nn.Linear(in_features=4096, out_features=7*7*30),
-            nn.Sigmoid()
+            nn.ReLU()
         )
 
     def feature_extractor(self,img):

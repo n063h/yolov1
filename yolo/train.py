@@ -38,8 +38,8 @@ def t(load_path=None,fronzen=True,offset=0):
     test_loader = data.DataLoader(test_dataset,batch_size=64,shuffle=False,num_workers=8)
 
 
-    # model = YOLOv1_Resnet()
-    model=YOLOv1()
+    model = YOLOv1_Resnet()
+    # model=YOLOv1()
     # model=vgg19_bn()
     if use_gpu:
         model.cuda()
@@ -127,5 +127,5 @@ def t(load_path=None,fronzen=True,offset=0):
 
 
 if __name__ == '__main__':
-    print('normalReLU vgg fronzen=False,offset=0')
+    print('normalReLU resnet34 fronzen=False,offset=0')
     t(load_path='./model/YOLOv1_normal_relu_notFronzen_best.pth',fronzen=False,offset=0)
