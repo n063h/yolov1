@@ -36,7 +36,7 @@ class YOLOv1_Resnet(nn.Module):
         )
         self.conn_layer2 = nn.Sequential(
             nn.Linear(in_features=4096, out_features=7*7*30),
-            nn.ReLU()
+
         )
 
     def feature_extractor(self,img):
@@ -56,5 +56,10 @@ class YOLOv1_Resnet(nn.Module):
         feature=feature.view(input.shape[0],-1)
         conn1=self.conn_layer1(feature)
         conn2=self.conn_layer2(conn1)
-        output=conn2.view(-1,7,7,30)
+        conn2=conn2.view(-1,7,7,30)
+
+        conn2[:,:,:,:4]=conn2[:,:,:,:4].sigmoid()
+        conn2[:, :, :,5:9] = conn2[:, :, :,5:9].sigmoid()
+
+        output=conn2.relu()
         return output
