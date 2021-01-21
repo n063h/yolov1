@@ -4,7 +4,7 @@ from util.calc_iou import *
 from yolo.network import YOLOv1
 import torchvision.transforms as transforms
 from yolo.yolo_resnet import YOLOv1_Resnet
-from yolo.yolo_vgg import vgg19
+from yolo.yolo_vgg import vgg19_bn
 import cv2
 from PIL import Image
 import numpy as np
@@ -139,24 +139,15 @@ def draw(box,img_path):
 
 
 if __name__ == '__main__':
-    # load_path='./model/YOLOv1_relu_notFronzen_best.pth'
-    # model = vgg19()
-    # model.cpu()
-    # # model.load_state_dict(torch.load(load_path,map_location=torch.device('cpu')))
-    # model.eval()
-    # arr=['./data/VOC2007/JPEGImages/002181.jpg']
-    # for i in arr:
-    #     predict(model,i)
-    pred=torch.Tensor([[ 0.4210,  0.5284,  0.2220,  0.4042,  1.0000, 14.0000,  0.5284,  0.2220,
-          0.4042,  1.0000,  0.0000,  0.0000,  0.0000,  0.0000,  0.0000,  0.0000,
-          0.0000,  0.0000,  0.0000,  0.0000,  0.0000,  0.0000,  0.0000,  0.0000,
-          1.0000,  0.0000,  0.0000,  0.0000,  0.0000,  0.0000],
-        [ 0.3930,  0.6407,  0.1740,  0.3114,  1.0000,  1.0000,  0.6407,  0.1740,
-          0.3114,  1.0000,  0.0000,  1.0000,  0.0000,  0.0000,  0.0000,  0.0000,
-          0.0000,  0.0000,  0.0000,  0.0000,  0.0000,  0.0000,  0.0000,  0.0000,
-          0.0000,  0.0000,  0.0000,  0.0000,  0.0000,  0.0000]])
+    load_path='./model/YOLOv1_ce_sigmoid_not_Fronzen_best.pth'
+    model = vgg19_bn()
+    model.cpu()
+    model.load_state_dict(torch.load(load_path,map_location=torch.device('cpu')))
+    model.eval()
+    arr=['./data/VOC2007/JPEGImages/002181.jpg','./data/VOC2007/JPEGImages/006673.jpg']
+    for i in arr:
+        predict(model,i)
 
-    draw(pred[:,:6],'./data/VOC2007/JPEGImages/004782.jpg')
 
 
 
