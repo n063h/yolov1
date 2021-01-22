@@ -45,6 +45,7 @@ test_transformer = [
 ]
 iou_threshold=.5
 bbox_conf_threshold=.05
+nms_threshold=.5
 
 def get_img(img_path):
     # img = np.array(Image.open(img_path))
@@ -61,11 +62,24 @@ def get_img(img_path):
 
 
 def nms(boxes): # x1,y1,x2,y2,conf,cls
-    # win=[]
-    # boxes=boxes.numpy()
-    # sorted(boxes,key=lambda x:x[0],reverse=True)
-
-    return boxes
+    num=boxes.shape[0]
+    tb=[0]*num
+    boxes=boxes.numpy()
+    boxes=sorted(boxes,key=lambda x:x[4],reverse=True)
+    while 0 in tb:
+        for i in range(num):
+            if tb[i]!=0:continue
+            win=boxes[i]
+            tb[i]=1
+            for j in range(i+1,num):
+                if tb[j] != 0: continue
+                if calc_iou(torch.Tensor(win[:4]),torch.Tensor(boxes[j][:4]))>nms_threshold:
+                    tb[j]=-1
+    win=[]
+    for i in range(num):
+        if tb[i]==1:
+            win.append(boxes[i])
+    return torch.Tensor(win)
 
 
 def get_box(pred):
@@ -142,7 +156,7 @@ def draw(box,img_path):
 
 
 if __name__ == '__main__':
-    load_path='./model/YOLOv1_ce_sigmoid_not_Fronzen_best1.pth'
+    load_path='./model/YOLOv1_ce_sigmoid_not_Fronzen_best.pth'
     model = vgg19_bn()
     model.cpu()
     model.load_state_dict(torch.load(load_path,map_location=torch.device('cpu')))

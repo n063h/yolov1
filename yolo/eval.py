@@ -45,7 +45,10 @@ def t(load_path=None,fronzen=True,offset=0):
         model.cuda()
     if load_path!=None:
         try:
-            model.load_state_dict(torch.load(load_path))
+            if use_gpu:
+                model.load_state_dict(torch.load(load_path))
+            else:
+                model.load_state_dict(torch.load(load_path, map_location=torch.device('cpu')))
         except Exception:
             print('model not Found')
     if not fronzen:
