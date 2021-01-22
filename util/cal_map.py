@@ -125,40 +125,14 @@ def predict(model,img_path):
     with torch.no_grad():
         pred = model(input)  # 1x7x7x30
         box = get_box(pred) # n*5
-
-    # x, y, w, h=xyxy2xywh(367,1,468,156,(w, h))
-    # box=torch.Tensor([x,y,w,h,0.9,8]).view(1,-1)
-    # xyxy = xywh2xyxy(box[0,:4])
-    # box[0,:4] = xyxy
-    draw(box,img_path)
+    return box
 
 
 
-def draw(box,img_path):
-    image = cv2.imread(img_path)
-    h,w,_=image.shape
-    w_ratio, h_ratio = w / 448, h / 448
-
-    for i in range(box.shape[0]):
-        b=box[i]
-        if b[0]<1:b[:4]=xywh2xyxy(b[:4])
-
-    if (box.shape[0] > 0):
-        box[:, [0, 2]] *= w_ratio
-        box[:, [1, 3]] *= h_ratio
-    for x1, y1, x2,y2, conf,cls_ind in box:
-        cls_ind=int(cls_ind)
-        color = Color[cls_ind]
-        cv2.rectangle(image, (x1,y2), (x2,y1), color, 2)
-        label = VOC_CLASSES[cls_ind] + str(round(float(conf), 2))
-        cv2.putText(image, label, (x1,y1+5), cv2.FONT_HERSHEY_SIMPLEX, 0.4, (255, 255, 255), 1, 8)
-
-    cv2.imshow('image',image)
-    cv2.waitKey()
 
 
 if __name__ == '__main__':
-    load_path='./model/YOLOv1_softmax_sigmoid_Fronzen_best_train.pth'
+    load_path='./model/YOLOv1_normal_sigmoid_not_Fronzen_best_train.pth'
     model = vgg19_bn()
     model.cpu()
     model.load_state_dict(torch.load(load_path,map_location=torch.device('cpu')))
