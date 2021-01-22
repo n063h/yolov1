@@ -105,12 +105,12 @@ def get_box(pred):
         if grid[4]>grid[9]:
             grid[4]*=conf_cls
             if grid[4]<bbox_conf_threshold:continue
-            conf_box.append(np.append(grid[:5].numpy(),conf_cls_ind))
+            conf_box.append(np.append(grid[:5].cpu().numpy(),conf_cls_ind))
 
         else:
             grid[9] *= conf_cls
             if grid[9] < bbox_conf_threshold: continue
-            conf_box.append(np.append(grid[5:10].numpy(),conf_cls_ind))
+            conf_box.append(np.append(grid[5:10].cpu().numpy(),conf_cls_ind))
     conf_box=torch.Tensor(conf_box)
     for i in range(len(conf_box)):
         conf_box[i][:4]=xywh2xyxy(conf_box[i][:4])
