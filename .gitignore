@@ -1,5 +1,6 @@
 /data/VOC2007/
-*.txt
+/detection-results/
+/ground-truth/
 *.weights
 *.xml
 *.pth

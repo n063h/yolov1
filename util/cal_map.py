@@ -1,4 +1,4 @@
-import torch
+import data,util,torch,time
 from torch.autograd import Variable
 from util.calc_iou import *
 from yolo.network import YOLOv1
@@ -137,9 +137,31 @@ if __name__ == '__main__':
     model.cpu()
     model.load_state_dict(torch.load(load_path,map_location=torch.device('cpu')))
     model.eval()
-    arr=['./data/VOC2007/JPEGImages/006018.jpg','./data/VOC2007/JPEGImages/003164.jpg','./data/VOC2007/JPEGImages/001894.jpg']
-    for i in arr:
-        predict(model,i)
+    test_dataset = data.voc_dataset('test', transform=test_transformer)
+    val_dir='./detection-results/'
+    gt_dir = './ground-truth/'
+    with torch.no_grad():
+        start=time.time()
+        cnt=0
+        print('start')
+        for i in test_dataset:
+            input,target,img_path=i
+            pred=model(input[None,:,:,:])
+            cnt+=1
+            now=time.time()
+            if now-start>100:
+                print(cnt)
+                break
+            # pred_box=get_box(pred)
+            # target_box=get_box(target[None,:,:,:])
+            # id=img_path.split('/')[-1].split('.')[0]
+            # with open(val_dir+id+'.txt','w') as f:
+            #     for i in pred_box:
+            #         f.write('%s %.2f %d %d %d %d\n'%(VOC_CLASSES[int(i[5])],i[4],int(i[0]),int(i[1]),int(i[2]),int(i[3])))
+            # with open(gt_dir+id+'.txt','w') as f:
+            #     for i in target_box:
+            #         f.write('%s %d %d %d %d\n'%(VOC_CLASSES[int(i[5])],int(i[0]),int(i[1]),int(i[2]),int(i[3])))
+
 
 
 
