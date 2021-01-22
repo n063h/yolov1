@@ -155,7 +155,7 @@ class Loss_yolov1(torch.nn.Module):
         """
         # TODO: Romove redundant dimensions for some Tensors.
 
-        S, B, C = self.S, self.B, self.C
+        S, B, C = 7, 2, 20
         N = 5 * B + C    # 5=len([x, y, w, h, conf]
 
         batch_size = pred_tensor.size(0)
