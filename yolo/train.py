@@ -64,7 +64,7 @@ def t(load_path=None,fronzen=True,offset=0):
         if e == 0:
             lr = 0.001
         if e == 5:
-            lr = 0.01
+            lr = 0.001
         if e == 80:
             lr = 0.001
         if e == 110:
