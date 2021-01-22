@@ -38,8 +38,8 @@ def t(load_path=None,fronzen=True,offset=0):
     test_loader = data.DataLoader(test_dataset,batch_size=64,shuffle=False,num_workers=8)
 
 
-    model = YOLOv1_Resnet()
-    # model=YOLOv1()
+    # model = YOLOv1_Resnet()
+    model=YOLOv1()
     # model=vgg19_bn()
     if use_gpu:
         model.cuda()
@@ -62,11 +62,11 @@ def t(load_path=None,fronzen=True,offset=0):
         epoch_eval_loss = torch.Tensor([0]).cuda() if use_gpu else torch.Tensor([0])
         epoch_part_loss=torch.zeros(4).cuda() if use_gpu else torch.zeros(4)
         if e == 0:
-            lr = 0.0001
+            lr = 0.001
         if e == 5:
-            lr = 0.0001
+            lr = 0.01
         if e == 80:
-            lr = 0.0001
+            lr = 0.001
         if e == 110:
             lr = 0.0001
         if e in [0,5,80,110]:
@@ -129,5 +129,5 @@ def t(load_path=None,fronzen=True,offset=0):
 
 
 if __name__ == '__main__':
-    print('ReLUSigmoid their loss resnet34 fronzen=False,offset=0')
+    print('YOLOv1_normal_relu_notFronzen_best resnet34 fronzen=False,offset=0')
     t(load_path='./model/YOLOv1_normal_relu_notFronzen_best.pth',fronzen=False,offset=0)
