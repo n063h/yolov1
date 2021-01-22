@@ -127,5 +127,5 @@ def t(load_path=None,fronzen=True,offset=0):
 
 
 if __name__ == '__main__':
-    print('ceSigmoid fronzen=false,offset=100')
-    t(load_path='./model/YOLOv1_ce_sigmoid_not_Fronzen_best.pth',fronzen=False,offset=100)
+    print('ceSigmoid fronzen=false,offset=0')
+    t(load_path='./model/YOLOv1_ce_sigmoid_not_Fronzen_best.pth',fronzen=False,offset=0)
