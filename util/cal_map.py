@@ -155,7 +155,7 @@ if __name__ == '__main__':
             pred=model(input[None,:,:,:])
             cnt+=1
             now=time.time()
-            if now-start>100:
+            if now-start>10:
                 print(cnt)
                 break
             # pred_box=get_box(pred)
