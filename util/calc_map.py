@@ -129,13 +129,16 @@ def predict(model,img_path):
 
 
 
-
+use_gpu = torch.cuda.is_available()
 
 if __name__ == '__main__':
     load_path='./model/YOLOv1_normal_relu_notFronzen_best.pth'
     model = vgg19_bn()
-    model.cpu()
-    model.load_state_dict(torch.load(load_path,map_location=torch.device('cpu')))
+    if not use_gpu:
+        model.load_state_dict(torch.load(load_path,map_location=torch.device('cpu')))
+    else:
+        model.load_state_dict(torch.load(load_path))
+        model.cuda()
     model.eval()
     test_dataset = data.voc_dataset('test', transform=test_transformer)
     val_dir='./detection-results/'
@@ -146,6 +149,8 @@ if __name__ == '__main__':
         print('start')
         for i in test_dataset:
             input,target,img_path=i
+            if use_gpu:
+                input,target=input.cuda(),target.cuda()
             pred=model(input[None,:,:,:])
             cnt+=1
             now=time.time()
