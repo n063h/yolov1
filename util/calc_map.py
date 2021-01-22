@@ -105,6 +105,9 @@ def get_box(pred):
         if grid[4]>grid[9]:
             grid[4]*=conf_cls
             if grid[4]<bbox_conf_threshold:continue
+            print('grid[:5] device',grid[:5].device)
+            print('grid[:5].cpu() device', grid[:5].cpu().device)
+            print('np',grid[:5].cpu().numpy())
             conf_box.append(np.append(grid[:5].cpu().numpy(),conf_cls_ind))
 
         else:
