@@ -62,12 +62,14 @@ def t(load_path=None,fronzen=True,offset=0):
         epoch_eval_loss = torch.Tensor([0]).cuda() if use_gpu else torch.Tensor([0])
         epoch_part_loss=torch.zeros(4).cuda() if use_gpu else torch.zeros(4)
         if e == 0:
-            lr = 0.0001
+            lr = 0.001
+        if e == 5:
+            lr = 0.01
         if e == 80:
             lr = 0.0001
         if e == 110:
             lr = 0.0001
-        if e in [0,80,110]:
+        if e in [0,5,80,110]:
             for param_group in optimizer.param_groups:
                 param_group['lr'] = lr
         if e < offset: continue

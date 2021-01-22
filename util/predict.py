@@ -4,7 +4,7 @@ from util.calc_iou import *
 from yolo.network import YOLOv1
 import torchvision.transforms as transforms
 from yolo.yolo_resnet import YOLOv1_Resnet
-from yolo.yolo_vgg import vgg19
+from yolo.yolo_vgg import vgg19_bn
 import cv2
 from PIL import Image
 import numpy as np
@@ -45,6 +45,7 @@ test_transformer = [
 ]
 iou_threshold=.5
 bbox_conf_threshold=.1
+nms_threshold=.5
 
 def get_img(img_path):
     # img = np.array(Image.open(img_path))
@@ -60,8 +61,25 @@ def get_img(img_path):
     return img[None,:,:,:]
 
 
-def nms(boxes):
-    return boxes
+def nms(boxes): # x1,y1,x2,y2,conf,cls
+    num=boxes.shape[0]
+    tb=[0]*num
+    boxes=boxes.numpy()
+    boxes=sorted(boxes,key=lambda x:x[4],reverse=True)
+    while 0 in tb:
+        for i in range(num):
+            if tb[i]!=0:continue
+            win=boxes[i]
+            tb[i]=1
+            for j in range(i+1,num):
+                if tb[j] != 0 or win[5]!=boxes[j][5]: continue
+                if calc_iou(torch.Tensor(win[:4]),torch.Tensor(boxes[j][:4]))>nms_threshold:
+                    tb[j]=-1
+    win=[]
+    for i in range(num):
+        if tb[i]==1:
+            win.append(boxes[i])
+    return torch.Tensor(win)
 
 
 def get_box(pred):
@@ -85,17 +103,18 @@ def get_box(pred):
         conf_cls_ind=grid[10:30].argmax()
         conf_cls=grid[10+conf_cls_ind]
         if grid[4]>grid[9]:
-            #grid[4]*=conf_cls
+            grid[4]*=conf_cls
+            if grid[4]<bbox_conf_threshold:continue
             conf_box.append(np.append(grid[:5].numpy(),conf_cls_ind))
 
         else:
-            #grid[9] *= conf_cls
+            grid[9] *= conf_cls
+            if grid[9] < bbox_conf_threshold: continue
             conf_box.append(np.append(grid[5:10].numpy(),conf_cls_ind))
     conf_box=torch.Tensor(conf_box)
-    nms_box=nms(conf_box)
-    for i in range(len(nms_box)):
-        xyxy=xywh2xyxy(nms_box[i][:4])
-        nms_box[i][:4]=xyxy
+    for i in range(len(conf_box)):
+        conf_box[i][:4]=xywh2xyxy(conf_box[i][:4])
+    nms_box = nms(conf_box)
 
     return nms_box
 
@@ -139,24 +158,15 @@ def draw(box,img_path):
 
 
 if __name__ == '__main__':
-    # load_path='./model/YOLOv1_relu_notFronzen_best.pth'
-    # model = vgg19()
-    # model.cpu()
-    # # model.load_state_dict(torch.load(load_path,map_location=torch.device('cpu')))
-    # model.eval()
-    # arr=['./data/VOC2007/JPEGImages/002181.jpg']
-    # for i in arr:
-    #     predict(model,i)
-    pred=torch.Tensor([[ 0.4210,  0.5284,  0.2220,  0.4042,  1.0000, 14.0000,  0.5284,  0.2220,
-          0.4042,  1.0000,  0.0000,  0.0000,  0.0000,  0.0000,  0.0000,  0.0000,
-          0.0000,  0.0000,  0.0000,  0.0000,  0.0000,  0.0000,  0.0000,  0.0000,
-          1.0000,  0.0000,  0.0000,  0.0000,  0.0000,  0.0000],
-        [ 0.3930,  0.6407,  0.1740,  0.3114,  1.0000,  1.0000,  0.6407,  0.1740,
-          0.3114,  1.0000,  0.0000,  1.0000,  0.0000,  0.0000,  0.0000,  0.0000,
-          0.0000,  0.0000,  0.0000,  0.0000,  0.0000,  0.0000,  0.0000,  0.0000,
-          0.0000,  0.0000,  0.0000,  0.0000,  0.0000,  0.0000]])
+    load_path='./model/YOLOv1_softmax_sigmoid_Fronzen_best_train.pth'
+    model = vgg19_bn()
+    model.cpu()
+    model.load_state_dict(torch.load(load_path,map_location=torch.device('cpu')))
+    model.eval()
+    arr=['./data/VOC2007/JPEGImages/006018.jpg','./data/VOC2007/JPEGImages/003164.jpg','./data/VOC2007/JPEGImages/001894.jpg']
+    for i in arr:
+        predict(model,i)
 
-    draw(pred[:,:6],'./data/VOC2007/JPEGImages/004782.jpg')
 
 
 
