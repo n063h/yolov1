@@ -133,7 +133,8 @@ use_gpu = torch.cuda.is_available()
 
 if __name__ == '__main__':
     load_path='./model/YOLOv1_normal_relu_notFronzen_best.pth'
-    model = vgg19_bn()
+    # model = vgg19_bn()
+    model = YOLOv1_Resnet()
     if not use_gpu:
         model.load_state_dict(torch.load(load_path,map_location=torch.device('cpu')))
     else:
