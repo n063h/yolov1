@@ -60,25 +60,9 @@ class Loss_yolov1(torch.nn.Module):
         coo_response_mask = torch.cuda.BoolTensor(all_obj_num*2,5) if use_gpu else torch.BoolTensor(all_obj_num*2,5)
         coo_response_mask.zero_()
         for i in range(0, all_obj_num*2,2):
-            # box1 = box_pred[i:i + 2]
-            # box1 = pred_grid_with_obj[i, :4]
-            # box2 = pred_grid_with_obj[i, 5:9]
             box1=Variable(torch.cuda.FloatTensor(pred_box_with_obj[i,:4])  if use_gpu else torch.FloatTensor(pred_box_with_obj[i,:4]))
             box2 = Variable(torch.cuda.FloatTensor(pred_box_with_obj[i+1,:4]) if use_gpu else torch.FloatTensor(pred_box_with_obj[i+1,:4]))
-
-            # box1_xyxy = Variable(torch.FloatTensor(box1.size()))
-            # box1_xyxy[:, :2] = box1[:, :2] - 0.5 * box1[:, 2:4]
-            # box1_xyxy[:, 2:4] = box1[:, :2] + 0.5 * box1[:, 2:4]
-            # box2 = box_target[i].view(-1, 5)
-            # box2_xyxy = Variable(torch.FloatTensor(box2.size()))
-            # box2_xyxy[:, :2] = box2[:, :2] - 0.5 * box2[:, 2:4]
-            # box2_xyxy[:, 2:4] = box2[:, :2] + 0.5 * box2[:, 2:4]
-            # boxt=target_grid_with_obj[i,:5]
             boxt = Variable(torch.cuda.FloatTensor(target_box_with_obj[i,:4]) if use_gpu else torch.FloatTensor(target_box_with_obj[i,:4]))
-
-            # iou = self.compute_iou(box1_xyxy[:, :4], box2_xyxy[:, :4])  # [2,1]
-            # max_iou, max_index = iou.max(0)
-            # max_index = max_index.data.cuda()
             iou1,iou2=calc_iou(box1,boxt),calc_iou(box2,boxt)
             higher_iou_ind=0 if iou1>iou2 else 1
             # target conf = iou

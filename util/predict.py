@@ -75,10 +75,7 @@ def nms(boxes): # x1,y1,x2,y2,conf,cls
                 if tb[j] != 0 or win[5]!=boxes[j][5]: continue
                 if calc_iou(torch.Tensor(win[:4]),torch.Tensor(boxes[j][:4]))>nms_threshold:
                     tb[j]=-1
-    win=[]
-    for i in range(num):
-        if tb[i]==1:
-            win.append(boxes[i])
+    win=[boxes[i]  for i in range(num) if tb[i]==1]
     return torch.Tensor(win)
 
 
