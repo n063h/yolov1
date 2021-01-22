@@ -133,7 +133,7 @@ def predict(model,img_path):
 use_gpu = torch.cuda.is_available()
 
 if __name__ == '__main__':
-    load_path = './model/YOLOv1_normal_sigmoid_not_Fronzen_best_train.pth'
+    load_path = './model/YOLOv1_normal_sigmoid_not_Fronzen_best.pth'
     model = vgg19_bn()
     if not use_gpu:
         model.load_state_dict(torch.load(load_path,map_location=torch.device('cpu')))
