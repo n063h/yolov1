@@ -33,9 +33,9 @@ def t(load_path=None,fronzen=True,offset=0):
 
 
     train_dataset = data.voc_dataset('train',transform=train_transformer)
-    train_loader = data.DataLoader(train_dataset, batch_size=64, shuffle=False,num_workers=8)
+    train_loader = data.DataLoader(train_dataset, batch_size=128, shuffle=False,num_workers=8)
     test_dataset = data.voc_dataset('test', transform=test_transformer)
-    test_loader = data.DataLoader(test_dataset,batch_size=64,shuffle=False,num_workers=8)
+    test_loader = data.DataLoader(test_dataset,batch_size=128,shuffle=False,num_workers=8)
 
 
     # model = YOLOv1_Resnet()
@@ -102,7 +102,7 @@ def t(load_path=None,fronzen=True,offset=0):
         print("Train Epoch %d/%d| TrainMeanLoss: %.2f ,loc_loss : %.2f, conf_loss_obj: %.2f , conf_loss_no_obj: %.2f, cls_loss: %.2f " % (e + 1, epoch, epoch_loss,epoch_part_loss[0],epoch_part_loss[1],epoch_part_loss[2],epoch_part_loss[3]))
         if epoch_loss < best_epoch_loss and e > 10:
             best_epoch_loss=epoch_loss
-            torch.save(model.state_dict(), './model/YOLOv1_ce_sigmoid_not_Fronzen_best_train.pth')
+            torch.save(model.state_dict(), './model/YOLOv1_t.pth')
             print('best train model Saved')
 
         model.eval()
@@ -119,7 +119,7 @@ def t(load_path=None,fronzen=True,offset=0):
             print('Eval Epoch %d/%d| EvalMeanLoss : %.2f' % (e + 1, epoch, eval_mean_Loss))
             if eval_mean_Loss<best_eval_loss and e>10:
                 best_eval_loss = eval_mean_Loss
-                torch.save(model.state_dict(), './model/YOLOv1_ce_sigmoid_not_Fronzen_best.pth')
+                torch.save(model.state_dict(), './model/YOLOv1.pth')
                 print('best model Saved')
 
 
@@ -128,4 +128,4 @@ def t(load_path=None,fronzen=True,offset=0):
 
 if __name__ == '__main__':
     print('ceSigmoid fronzen=false,offset=0')
-    t(load_path='./model/YOLOv1_ce_sigmoid_not_Fronzen_best.pth',fronzen=False,offset=0)
+    t(load_path='./model/YOLOv1.pth',fronzen=False,offset=0)
