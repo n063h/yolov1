@@ -105,12 +105,12 @@ def get_box(pred):
         if grid[4]>grid[9]:
             grid[4]*=conf_cls
             if grid[4]<bbox_conf_threshold:continue
-            conf_box.append(np.append(grid[:5].numpy(),conf_cls_ind))
+            conf_box.append(np.append(grid[:5].cpu().numpy(),conf_cls_ind.cpu()))
 
         else:
             grid[9] *= conf_cls
             if grid[9] < bbox_conf_threshold: continue
-            conf_box.append(np.append(grid[5:10].numpy(),conf_cls_ind))
+            conf_box.append(np.append(grid[5:10].cpu().numpy(),conf_cls_ind.cpu()))
     conf_box=torch.Tensor(conf_box)
     for i in range(len(conf_box)):
         conf_box[i][:4]=xywh2xyxy(conf_box[i][:4])
@@ -152,20 +152,20 @@ if __name__ == '__main__':
             if use_gpu:
                 input,target=input.cuda(),target.cuda()
             pred=model(input[None,:,:,:])
-            cnt+=1
-            now=time.time()
-            if now-start>10:
-                print(cnt)
-                break
-            # pred_box=get_box(pred)
-            # target_box=get_box(target[None,:,:,:])
-            # id=img_path.split('/')[-1].split('.')[0]
-            # with open(val_dir+id+'.txt','w') as f:
-            #     for i in pred_box:
-            #         f.write('%s %.2f %d %d %d %d\n'%(VOC_CLASSES[int(i[5])],i[4],int(i[0]),int(i[1]),int(i[2]),int(i[3])))
-            # with open(gt_dir+id+'.txt','w') as f:
-            #     for i in target_box:
-            #         f.write('%s %d %d %d %d\n'%(VOC_CLASSES[int(i[5])],int(i[0]),int(i[1]),int(i[2]),int(i[3])))
+            # cnt+=1
+            # now=time.time()
+            # if now-start>10:
+            #     print(cnt)
+            #     break
+            pred_box=get_box(pred)
+            target_box=get_box(target[None,:,:,:])
+            id=img_path.split('/')[-1].split('.')[0]
+            with open(val_dir+id+'.txt','w') as f:
+                for i in pred_box:
+                    f.write('%s %.2f %d %d %d %d\n'%(VOC_CLASSES[int(i[5])],i[4],int(i[0]),int(i[1]),int(i[2]),int(i[3])))
+            with open(gt_dir+id+'.txt','w') as f:
+                for i in target_box:
+                    f.write('%s %d %d %d %d\n'%(VOC_CLASSES[int(i[5])],int(i[0]),int(i[1]),int(i[2]),int(i[3])))
 
 
 
