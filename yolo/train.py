@@ -103,7 +103,7 @@ def t(load_path=None,fronzen=True,offset=0):
 
         if epoch_loss < best_epoch_loss and e > 10:
             best_epoch_loss=epoch_loss
-            torch.save(model.state_dict(), './model/YOLOv1_softmax_sigmoid_Fronzen_best_train.pth')
+            torch.save(model.state_dict(), './model/YOLOv1_t.pth')
             print('best train model Saved')
 
         model.eval()
@@ -120,7 +120,7 @@ def t(load_path=None,fronzen=True,offset=0):
             print('Eval Epoch %d/%d| EvalMeanLoss : %.2f' % (e + 1, epoch, eval_mean_Loss))
             if eval_mean_Loss<best_eval_loss and e>10:
                 best_eval_loss = eval_mean_Loss
-                torch.save(model.state_dict(), './model/YOLOv1_softmax_sigmoid_Fronzen_best.pth')
+                torch.save(model.state_dict(), './model/YOLOv1.pth')
                 print('best model Saved')
 
 
@@ -129,4 +129,4 @@ def t(load_path=None,fronzen=True,offset=0):
 
 if __name__ == '__main__':
     print('softmaxSigmoid fronzen=True,offset=0')
-    t(load_path='./model/YOLOv1_softmax_sigmoid_Fronzen_best.pth',fronzen=True,offset=80)
+    t(load_path='./model/YOLOv1.pth',fronzen=True,offset=80)

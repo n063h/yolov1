@@ -229,8 +229,7 @@ class Loss_yolov1(torch.nn.Module):
         loss_obj = F.mse_loss(bbox_pred_response[:, 4], target_iou[:, 4], reduction='sum')
 
         # Class probability loss for the cells which contain objects.
-        # loss_class = F.mse_loss(class_pred, class_target, reduction='sum')
-        class_pred = class_pred.softmax(dim=1)
+
         loss_class = F.mse_loss(class_pred, class_target, reduction='sum')
         # Total loss
         loss = self.l_coord * (loss_xy + loss_wh) + loss_obj + self.l_noobj * loss_noobj + loss_class
