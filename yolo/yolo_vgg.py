@@ -44,7 +44,7 @@ class YOLOv1_VGG(nn.Module):
         output=x.clone()
         output[:,:,:,:10]=F.sigmoid(x[:,:,:,:10])
         output[:, :, :,10:] = x[:, :, :,10:].softmax(dim=3)
-        return x
+        return output
 
     def _initialize_weights(self):
         for m in self.modules():
