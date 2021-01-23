@@ -132,7 +132,7 @@ def predict(model,img_path):
 use_gpu = torch.cuda.is_available()
 
 if __name__ == '__main__':
-    load_path='./model/YOLOv1_ce_sigmoid_not_Fronzen_best.pth'
+    load_path='./model/YOLOv1_ce_sigmoid_not_Fronzen_best_train.pth'
     model = vgg19_bn()
     if not use_gpu:
         model.load_state_dict(torch.load(load_path,map_location=torch.device('cpu')))
@@ -140,7 +140,7 @@ if __name__ == '__main__':
         model.load_state_dict(torch.load(load_path))
         model.cuda()
     model.eval()
-    test_dataset = data.voc_dataset('test', transform=test_transformer)
+    test_dataset = data.voc_dataset('train', transform=test_transformer)
     val_dir='./detection-results/'
     gt_dir = './ground-truth/'
     with torch.no_grad():
