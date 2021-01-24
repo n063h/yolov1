@@ -66,7 +66,7 @@ class YOLOv1(nn.Module):
         )
         self.conn_layer2 = nn.Sequential(
             nn.Linear(in_features=4096, out_features=7*7*30),
-            nn.ReLU()
+            nn.Sigmoid()
         )
         self._initialize_weights()
 
