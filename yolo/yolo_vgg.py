@@ -33,7 +33,7 @@ class YOLOv1_VGG(nn.Module):
             nn.LeakyReLU(0.1),
             nn.Dropout(),
             nn.Linear(4096, 1470),
-            nn.Sigmoid()
+
         )
         self._initialize_weights()
 
@@ -42,7 +42,9 @@ class YOLOv1_VGG(nn.Module):
         x = x.view(x.size(0), -1)
         x = self.classifier(x)
         x = x.view(-1,7,7,30)
-        return x
+        output=x.clone()
+        output[:,:,:,:10]=x[:,:,:,:10].sigmoid()
+        return output
 
     def _initialize_weights(self):
         for m in self.modules():
