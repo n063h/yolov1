@@ -127,5 +127,5 @@ def t(load_path=None,fronzen=True,offset=0):
 
 
 if __name__ == '__main__':
-    print('normalSigmoid their loss fronzen=False,offset=80')
-    t(load_path='./model/YOLOv1.pth',fronzen=False,offset=80)
+    print('normalSigmoid their loss fronzen=False,offset=0')
+    t(load_path='./model/YOLOv1.pth',fronzen=False,offset=0)
