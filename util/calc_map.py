@@ -132,7 +132,7 @@ def predict(model,img_path):
 use_gpu = torch.cuda.is_available()
 
 if __name__ == '__main__':
-    load_path='./model/YOLOv1.pth'
+    load_path='./model/YOLOv1_t.pth'
     # model = vgg19_bn()
     model = YOLOv1()
     if not use_gpu:
