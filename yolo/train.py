@@ -128,5 +128,5 @@ def t(load_path=None,fronzen=True,offset=0):
 
 
 if __name__ == '__main__':
-    print('softmaxSigmoid fronzen=True,offset=0')
-    t(load_path='./model/YOLOv1.pth',fronzen=True,offset=0)
+    print('softmaxSigmoid fronzen=False,offset=80')
+    t(load_path='./model/YOLOv1.pth',fronzen=False,offset=80)
