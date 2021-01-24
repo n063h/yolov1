@@ -63,7 +63,7 @@ def t(load_path=None,fronzen=True,offset=0):
         epoch_part_loss=torch.zeros(4).cuda() if use_gpu else torch.zeros(4)
         if e == 0:
             lr = 0.001
-        if e == 1:
+        if e == 5:
             lr = 0.01
         if e == 80:
             lr = 0.001
